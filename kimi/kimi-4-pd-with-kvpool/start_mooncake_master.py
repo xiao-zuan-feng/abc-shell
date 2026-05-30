@@ -149,14 +149,14 @@ def health_check_loop():
             health_check_fail_count = 0
             print("Health check passed")
             
-            if not has_notified:
-                has_notified = True
-                ip_list = get_ip_list()
-                if ip_list:
-                    print(f"Notifying nodes: {ip_list}")
-                    notify_nodes_async(ip_list)
-                else:
-                    print("Failed to get ip_list for notification")
+            # if not has_notified:
+            #     has_notified = True
+            #     ip_list = get_ip_list()
+            #     if ip_list:
+            #         print(f"Notifying nodes: {ip_list}")
+            #         notify_nodes_async(ip_list)
+            #     else:
+            #         print("Failed to get ip_list for notification")
         else:
             health_check_fail_count += 1
             print(f"Health check failed (count: {health_check_fail_count})")

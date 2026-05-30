@@ -12,6 +12,8 @@ GLOBAL_RANK_TABLE_PATH = '/user/global/config/global_rank_table.json'
 WORKSPACE_SCRIPTS_PATH = '/workspace/scripts'
 CHECK_ALREADY_DIR = '/workspace/scripts/checkalready/kimi/'
 PROXY_SCRIPT = '/workspace/scripts/proxy.sh'
+MOONCAKE_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mooncake.json')
+MOONCAKE_MASTER_PORT = 50088
 
 NODE_ROLES = {
     'PREFILL_MASTER': 'prefill_master',
@@ -40,6 +42,22 @@ DECODE_MASTER_INDEX = 2
 DECODE_SLAVE_INDEX = 3
 
 IS_MOONCAKE_MASTER_ALREADY = False
+
+def update_mooncake_config(master_ip: str) -> bool:
+    try:
+        with open(MOONCAKE_CONFIG_PATH, 'r') as f:
+            config = json.load(f)
+        
+        config['master_server_address'] = f"{master_ip}:{MOONCAKE_MASTER_PORT}"
+        
+        with open(MOONCAKE_CONFIG_PATH, 'w') as f:
+            json.dump(config, f, indent=4)
+        
+        print(f"Updated mooncake.json master_server_address to {master_ip}:{MOONCAKE_MASTER_PORT}")
+        return True
+    except Exception as e:
+        print(f"Failed to update mooncake.json: {e}")
+        return False
 
 class MooncakeMasterHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -158,8 +176,8 @@ def check_file_count() -> Tuple[bool, str]:
                         and f.startswith(f"{master_ip}-")]
             file_count = len(file_list)
             print(f"current file count: {file_count}")
-            if IS_MOONCAKE_MASTER_ALREADY and file_count == EXPECTED_NODE_COUNT:
-                print("current file count is already and mooncake master is ready")
+            if file_count == EXPECTED_NODE_COUNT:
+                print("current file count is already")
                 break
             time.sleep(CHECK_FILE_INTERVAL)
         except Exception as e:
@@ -189,9 +207,18 @@ def determine_node_role(local_ip: str, ip_list: List[str]) -> Tuple[Optional[str
     return None, None
 
 if __name__ == "__main__":
-    http_server_thread = threading.Thread(target=start_http_server, daemon=True)
-    http_server_thread.start()
-    print(f"HTTP server started on port {HTTP_SERVER_PORT}")
+    if len(sys.argv) < 2:
+        print("Usage: python execute_pd.py <mooncake_master_ip>")
+        sys.exit(1)
+    
+    mooncake_master_ip = sys.argv[1]
+    if not update_mooncake_config(mooncake_master_ip):
+        print("Failed to update mooncake config, exit")
+        sys.exit(1)
+    
+    # http_server_thread = threading.Thread(target=start_http_server, daemon=True)
+    # http_server_thread.start()
+    # print(f"HTTP server started on port {HTTP_SERVER_PORT}")
     
     check_file_count_result, file_path = check_file_count()
     if not check_file_count_result:
