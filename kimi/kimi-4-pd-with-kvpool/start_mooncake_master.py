@@ -8,6 +8,8 @@ import requests
 import fcntl
 from typing import List, Optional
 
+LD_LIBRARY_PATH = '/usr/local/Ascend/ascend-toolkit/latest/aarch64-linux/lib64:/usr/local/lib:/usr/local/Ascend/cann-8.5.1/aarch64-linux/lib64/device/lib64'
+
 MOONCAKE_MASTER_CMD = "mooncake_master"
 MOONCAKE_MASTER_PORT = 50088
 METRICS_PORT = 9003
@@ -73,7 +75,9 @@ def start_mooncake_master() -> Optional[subprocess.Popen]:
     global mooncake_master_process
     try:
         print(f"Starting mooncake_master with args: {MOONCAKE_MASTER_ARGS}")
-        process = subprocess.Popen([MOONCAKE_MASTER_CMD] + MOONCAKE_MASTER_ARGS)
+        env = os.environ.copy()
+        env['LD_LIBRARY_PATH'] = LD_LIBRARY_PATH + ':' + env.get('LD_LIBRARY_PATH', '')
+        process = subprocess.Popen([MOONCAKE_MASTER_CMD] + MOONCAKE_MASTER_ARGS, env=env)
         mooncake_master_process = process
         print(f"mooncake_master started with PID: {process.pid}")
         return process
