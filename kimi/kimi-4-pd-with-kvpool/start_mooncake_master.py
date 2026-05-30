@@ -91,11 +91,7 @@ def check_health() -> bool:
     try:
         health_url = f"http://localhost:{METRICS_PORT}/health"
         response = requests.get(health_url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('status') == 'ok' and data.get('service_ready', False):
-                return True
-        return False
+        return response.status_code == 200
     except Exception as e:
         print(f"Health check failed: {e}")
         return False
