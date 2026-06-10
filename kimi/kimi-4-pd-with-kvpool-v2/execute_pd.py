@@ -13,7 +13,6 @@ WORKSPACE_SCRIPTS_PATH = '/workspace/scripts'
 CHECK_ALREADY_DIR = '/workspace/scripts/checkalready/kimi/'
 PROXY_SCRIPT = '/workspace/scripts/proxy.sh'
 MOONCAKE_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mooncake.json')
-MOONCAKE_MASTER_PORT = 50088
 
 NODE_ROLES = {
     'PREFILL_MASTER': 'prefill_master',
@@ -43,17 +42,17 @@ DECODE_SLAVE_INDEX = 3
 
 IS_MOONCAKE_MASTER_ALREADY = False
 
-def update_mooncake_config(master_ip: str) -> bool:
+def update_mooncake_config(master_ip: str, master_port: int) -> bool:
     try:
         with open(MOONCAKE_CONFIG_PATH, 'r') as f:
             config = json.load(f)
         
-        config['master_server_address'] = f"{master_ip}:{MOONCAKE_MASTER_PORT}"
+        config['master_server_address'] = f"{master_ip}:{master_port}"
         
         with open(MOONCAKE_CONFIG_PATH, 'w') as f:
             json.dump(config, f, indent=4)
         
-        print(f"Updated mooncake.json master_server_address to {master_ip}:{MOONCAKE_MASTER_PORT}")
+        print(f"Updated mooncake.json master_server_address to {master_ip}:{master_port}")
         return True
     except Exception as e:
         print(f"Failed to update mooncake.json: {e}")
@@ -173,12 +172,18 @@ def determine_node_role(local_ip: str, ip_list: List[str]) -> Tuple[Optional[str
     return None, None
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python execute_pd.py <mooncake_master_ip>")
+    if len(sys.argv) != 3:
+        print("Usage: python execute_pd.py <mooncake_master_ip> <mooncake_master_port>")
         sys.exit(1)
     
     mooncake_master_ip = sys.argv[1]
-    if not update_mooncake_config(mooncake_master_ip):
+    try:
+        mooncake_master_port = int(sys.argv[2])
+    except ValueError:
+        print("Error: mooncake_master_port must be an integer")
+        sys.exit(1)
+    
+    if not update_mooncake_config(mooncake_master_ip, mooncake_master_port):
         print("Failed to update mooncake config, exit")
         sys.exit(1)
     
