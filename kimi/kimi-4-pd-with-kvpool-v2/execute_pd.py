@@ -59,40 +59,6 @@ def update_mooncake_config(master_ip: str) -> bool:
         print(f"Failed to update mooncake.json: {e}")
         return False
 
-class MooncakeMasterHandler(BaseHTTPRequestHandler):
-    def log_message(self, format, *args):
-        pass
-    
-    def do_POST(self):
-        global IS_MOONCAKE_MASTER_ALREADY
-        content_length = int(self.headers.get('Content-Length', 0))
-        if content_length == 0:
-            self.send_response(400)
-            self.end_headers()
-            return
-        
-        post_data = self.rfile.read(content_length)
-        try:
-            data = json.loads(post_data.decode('utf-8'))
-            if isinstance(data, dict) and data.get('is_mooncake_master_already') == True:
-                IS_MOONCAKE_MASTER_ALREADY = True
-                print("Received mooncake master ready signal")
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(b'{"status": "ok"}')
-            else:
-                self.send_response(400)
-                self.end_headers()
-        except Exception as e:
-            print(f"Failed to parse request: {e}")
-            self.send_response(400)
-            self.end_headers()
-
-def start_http_server():
-    server = HTTPServer(('0.0.0.0', HTTP_SERVER_PORT), MooncakeMasterHandler)
-    server.serve_forever()
-
 def get_ip_list() -> Optional[List[str]]:
     try:
         with open(GLOBAL_RANK_TABLE_PATH, 'r') as file:
@@ -215,10 +181,6 @@ if __name__ == "__main__":
     if not update_mooncake_config(mooncake_master_ip):
         print("Failed to update mooncake config, exit")
         sys.exit(1)
-    
-    # http_server_thread = threading.Thread(target=start_http_server, daemon=True)
-    # http_server_thread.start()
-    # print(f"HTTP server started on port {HTTP_SERVER_PORT}")
     
     check_file_count_result, file_path = check_file_count()
     if not check_file_count_result:
