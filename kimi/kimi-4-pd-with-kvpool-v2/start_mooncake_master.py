@@ -24,8 +24,6 @@ MOONCAKE_MASTER_ARGS = [
 HEALTH_CHECK_INTERVAL = 10
 HEALTH_CHECK_MAX_FAILURES = 3
 NOTIFY_RETRY_INTERVAL = 10
-GLOBAL_RANK_TABLE_PATH = '/user/global/config/global_rank_table.json'
-HTTP_SERVER_PORT = 8888
 
 mooncake_master_process: Optional[subprocess.Popen] = None
 health_check_fail_count = 0

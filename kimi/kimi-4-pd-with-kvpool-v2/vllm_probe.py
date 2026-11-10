@@ -45,7 +45,7 @@ if __name__ == "__main__":
         'Content-Type': 'application/json',
     }
     request_data = {
-        "model": "kimi_k2.5",
+        "model": "kimi_k2.6",
         "messages": [{"role": "user", "content": "hello"}],
         "stream": False,
         "max_tokens": 5,

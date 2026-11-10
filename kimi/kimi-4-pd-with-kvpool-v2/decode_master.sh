@@ -61,7 +61,7 @@ vllm serve /workspace/model \
     --tensor-parallel-size 2 \
     --enable-expert-parallel \
     --seed 1024 \
-    --served-model-name kimi_k2.5 \
+    --served-model-name kimi_k2.6 \
    --tool-call-parser kimi_k2 \
    --reasoning-parser kimi_k2 \
    --enable-auto-tool-choice \
@@ -88,6 +88,7 @@ vllm serve /workspace/model \
             {
                 "kv_connector": "MooncakeConnectorV1",
                 "kv_role": "kv_consumer",
+                "kv_load_failure_policy": "recompute",
                 "kv_port": "30100",
                 "kv_connector_extra_config": {
                     "prefill": {

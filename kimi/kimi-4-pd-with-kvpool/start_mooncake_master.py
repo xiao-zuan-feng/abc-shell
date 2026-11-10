@@ -8,6 +8,8 @@ import requests
 import fcntl
 from typing import List, Optional
 
+# mooncake_master启动需要libascend_hal.so, 从ma创建的纯cpu容器只有/usr/local/Ascend/cann-8.5.1/aarch64-linux/lib64/device/lib64下有
+# 需要注意的是不同的镜像该路径可能不一样。
 LD_LIBRARY_PATH = '/usr/local/Ascend/ascend-toolkit/latest/aarch64-linux/lib64:/usr/local/lib:/usr/local/Ascend/cann-8.5.1/aarch64-linux/lib64/device/lib64'
 
 MOONCAKE_MASTER_CMD = "mooncake_master"

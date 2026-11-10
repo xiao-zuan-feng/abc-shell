@@ -70,7 +70,7 @@ vllm serve /workspace/model \
    --reasoning-parser kimi_k2 \
    --enable-auto-tool-choice \
    --chat-template /workspace/model/chat-template.jinja \
-    --served-model-name kimi_k2.5 \
+    --served-model-name kimi_k2.6 \
     --trust-remote-code \
     --max-num-seqs 16 \
     --max-model-len 133120 \
@@ -90,6 +90,7 @@ vllm serve /workspace/model \
             {
                 "kv_connector": "MooncakeConnectorV1",
                 "kv_role": "kv_producer",
+                "kv_load_failure_policy": "recompute",
                 "kv_port": "30000",
                 "kv_connector_extra_config": {
                     "prefill": {
